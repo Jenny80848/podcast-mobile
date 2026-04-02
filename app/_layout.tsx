@@ -1,13 +1,39 @@
+import { useEffect, useState } from 'react';
+import { View, Image, ActivityIndicator, StyleSheet } from 'react-native';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Drawer } from 'expo-router/drawer';
 import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import * as SplashScreen from 'expo-splash-screen';
+import { useFonts } from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
+import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
+// Prevent the splash screen from auto-hiding before asset loading is complete.
+SplashScreen.preventAutoHideAsync();
+
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const [appIsReady, setAppIsReady] = useState(false);
+
+  const [loaded, error] = useFonts({
+    ...Ionicons.font,
+  });
+
+  useEffect(() => {
+    if (loaded || error) {
+      // Small delay to ensure smooth transition
+      setTimeout(() => {
+        setAppIsReady(true);
+        SplashScreen.hideAsync();
+      }, 500);
+    }
+  }, [loaded, error]);
+
+  if (!appIsReady) {
+    return <LoadingScreen />;
+  }
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
@@ -78,3 +104,32 @@ export default function RootLayout() {
     </ThemeProvider>
   );
 }
+
+function LoadingScreen() {
+  return (
+    <View style={styles.loadingContainer}>
+      <Image 
+        source={require('@/assets/images/splash-icon.png')} 
+        style={styles.loadingIcon} 
+        resizeMode="contain"
+      />
+      <ActivityIndicator size="large" color="#3b82f6" style={styles.loader} />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: '#0a0f1c',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingIcon: {
+    width: 200,
+    height: 200,
+  },
+  loader: {
+    marginTop: 20,
+  },
+});

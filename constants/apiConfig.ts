@@ -48,3 +48,8 @@ export const fetchCategories = async (): Promise<ApiResponse<Category[]>> => {
   const response = await fetch(`${API_BASE_URL}/get_categories.php`);
   return response.json();
 };
+
+export const fetchSearchEpisodes = async (query: string): Promise<ApiResponse<Episode[]>> => {
+  const response = await fetch(`${API_BASE_URL}/search_episodes.php?q=${encodeURIComponent(query)}`);
+  return response.json();
+};
