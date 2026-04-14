@@ -52,7 +52,7 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Latest Episodes</Text>
+      <Text style={styles.header}>Latest Messages</Text>
       <FlatList
         data={episodes}
         keyExtractor={(item) => item.id.toString()}

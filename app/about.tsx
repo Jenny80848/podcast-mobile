@@ -5,22 +5,23 @@ export default function AboutScreen() {
   return (
     <ScrollView style={styles.container}>
       <Image 
-        source={{ uri: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=800&q=80' }} 
+        source={require('@/assets/images/tems.jpeg')} 
         style={styles.heroImage} 
+        resizeMode="cover"
       />
       <View style={styles.content}>
         <Text style={styles.title}>About Us</Text>
         <Text style={styles.description}>
-          Podcaster was founded on the belief that meaningful conversations have the power to change the world. What started as a late-night recording session in a basement has grown into a global network.
+          Pastor Tems Ifidi Ministries was founded on the belief that the Word of God has the power to transform lives and bring hope to the world. What started as a small gathering has grown into a spiritual sanctuary for many.
         </Text>
         <Text style={styles.description}>
-          We dive deep into technology, design, and culture with the minds actively shaping the future. Our goal is to bring you actionable insights, fascinating stories, and a community of curious listeners.
+          We dive deep into the scriptures and spiritual teachings that actively shape our faith. Our goal is to bring you divine insights, powerful testimonies, and a community of believers.
         </Text>
         
         <View style={styles.statsContainer}>
           <View style={styles.statBox}>
              <Text style={styles.statNumber}>50+</Text>
-             <Text style={styles.statLabel}>Shows</Text>
+             <Text style={styles.statLabel}>Messages</Text>
           </View>
           <View style={styles.statBox}>
              <Text style={styles.statNumber}>1M+</Text>

@@ -58,7 +58,7 @@ export default function RootLayout() {
           name="(tabs)"
           options={{
             drawerLabel: 'Home',
-            title: 'Podcaster',
+            title: 'Pastor Tems Ifidi Ministries',
             drawerIcon: ({ color, size }) => (
               <Ionicons name="home-outline" size={size} color={color} />
             ),
@@ -109,8 +109,8 @@ function LoadingScreen() {
   return (
     <View style={styles.loadingContainer}>
       <Image 
-        source={require('@/assets/images/splash-icon.png')} 
-        style={styles.loadingIcon} 
+        source={require('@/assets/images/tems.jpeg')} 
+        style={[styles.loadingIcon, { borderRadius: 100 }]} 
         resizeMode="contain"
       />
       <ActivityIndicator size="large" color="#3b82f6" style={styles.loader} />

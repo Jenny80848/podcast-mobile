@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "podcast-mobile",
-    "slug": "podcast-mobile",
+    "name": "Pastor Tems Ifidi Ministries",
+    "slug": "pastor-tems-ifidi-ministries",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "podcastmobile",
+    "scheme": "pastortemsifidi",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
