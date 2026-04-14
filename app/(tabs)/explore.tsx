@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { fetchCategories, Category } from '@/constants/apiConfig';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function CategoriesScreen() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -23,14 +24,33 @@ export default function CategoriesScreen() {
     }
   };
 
-  const renderItem = ({ item }: { item: Category }) => (
-    <TouchableOpacity 
-      style={styles.card}
-      onPress={() => {/* Navigation to filtered list could be added here */}}
-    >
-      <Text style={styles.title}>{item.name}</Text>
-    </TouchableOpacity>
-  );
+  const getIconForCategory = (name: string) => {
+    const n = name.toLowerCase();
+    if (n.includes('prayer')) return 'flame-outline';
+    if (n.includes('faith')) return 'shield-checkmark-outline';
+    if (n.includes('kingdom')) return 'planet-outline';
+    if (n.includes('worship')) return 'musical-notes-outline';
+    return 'microphone-outline';
+  };
+
+  const renderItem = ({ item, index }: { item: Category; index: number }) => {
+    const colors = ['#3b82f6', '#ec4899', '#8b5cf6', '#f59e0b', '#10b981'];
+    const color = colors[index % colors.length];
+
+    return (
+      <TouchableOpacity 
+        activeOpacity={0.7}
+        style={[styles.card, { borderColor: `${color}33` }]}
+        onPress={() => {/* Navigation to filtered list */}}
+      >
+        <View style={[styles.iconBox, { backgroundColor: `${color}15` }]}>
+          <Ionicons name={getIconForCategory(item.name)} size={28} color={color} />
+        </View>
+        <Text style={styles.cardTitle}>{item.name}</Text>
+        <Text style={styles.episodeCount}>Browse Messages</Text>
+      </TouchableOpacity>
+    );
+  };
 
   if (loading) {
     return (
@@ -42,13 +62,19 @@ export default function CategoriesScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Categories</Text>
       <FlatList
         data={categories}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
         numColumns={2}
         columnWrapperStyle={styles.row}
+        ListHeaderComponent={() => (
+          <View style={styles.headerContainer}>
+            <Text style={styles.header}>Categories</Text>
+            <Text style={styles.subHeader}>Explore messages by topic</Text>
+          </View>
+        )}
+        contentContainerStyle={styles.list}
       />
     </View>
   );
@@ -58,7 +84,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#0a0f1c',
-    padding: 16,
   },
   centered: {
     flex: 1,
@@ -66,32 +91,58 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#0a0f1c',
   },
+  headerContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 40,
+    paddingBottom: 24,
+  },
   header: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 32,
+    fontWeight: '800',
     color: '#fff',
-    marginBottom: 20,
-    marginTop: 10,
+    letterSpacing: -0.5,
+    marginBottom: 4,
+  },
+  subHeader: {
+    fontSize: 16,
+    color: '#94a3b8',
+    fontWeight: '500',
+  },
+  list: {
+    paddingHorizontal: 15,
+    paddingBottom: 40,
   },
   row: {
     justifyContent: 'space-between',
+    paddingHorizontal: 5,
   },
   card: {
-    backgroundColor: '#1e293b',
-    borderRadius: 12,
+    backgroundColor: 'rgba(30, 41, 59, 0.4)',
+    borderRadius: 24,
     padding: 20,
-    marginBottom: 16,
+    marginBottom: 20,
     width: '48%',
-    alignItems: 'center',
-    justifyContent: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-    height: 100,
+    alignItems: 'flex-start',
+    height: 160,
+    justifyContent: 'space-between',
   },
-  title: {
+  iconBox: {
+    width: 50,
+    height: 50,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cardTitle: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 18,
+    fontWeight: '700',
+    marginTop: 12,
+  },
+  episodeCount: {
+    color: '#94a3b8',
+    fontSize: 12,
     fontWeight: '600',
-    textAlign: 'center',
   },
 });

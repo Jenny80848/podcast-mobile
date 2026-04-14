@@ -1,9 +1,7 @@
 import { Platform } from 'react-native';
 
-// Config for the API
-const domain = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
-export const API_BASE_URL = `http://${domain}/podcast-site/api`; 
-export const IMAGE_BASE_URL = `http://${domain}/podcast-site/`;
+export const API_BASE_URL = `https://tems.toamultitech.tech/api`; 
+export const IMAGE_BASE_URL = `https://tems.toamultitech.tech/`;
 
 export interface Episode {
   id: number;
