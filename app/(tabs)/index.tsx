@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndicator, RefreshControl } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { fetchEpisodes, IMAGE_BASE_URL, Episode } from '@/constants/apiConfig';
@@ -7,10 +7,18 @@ import { fetchEpisodes, IMAGE_BASE_URL, Episode } from '@/constants/apiConfig';
 export default function HomeScreen() {
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     loadEpisodes();
+    
+    // Auto-refresh in the background every 30 seconds
+    const interval = setInterval(() => {
+      backgroundRefresh();
+    }, 30000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const loadEpisodes = async () => {
@@ -23,6 +31,31 @@ export default function HomeScreen() {
       console.error(error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    loadEpisodes();
+  }, []);
+
+  const backgroundRefresh = async () => {
+    try {
+      const json = await fetchEpisodes();
+      if (json.success) {
+        // Deep compare or simple length/id check to avoid unnecessary re-renders
+        // For simplicity, we just set the new data; React Native's FlatList handles diffing
+        setEpisodes(prev => {
+          // Only update if data has changed to prevent UI flicker
+          if (JSON.stringify(prev) !== JSON.stringify(json.data)) {
+            return json.data;
+          }
+          return prev;
+        });
+      }
+    } catch (error) {
+      console.warn('Background refresh failed:', error);
     }
   };
 
@@ -78,6 +111,15 @@ export default function HomeScreen() {
         )}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.list}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#3b82f6"
+            colors={['#3b82f6']}
+            backgroundColor="#0a0f1c"
+          />
+        }
       />
     </View>
   );

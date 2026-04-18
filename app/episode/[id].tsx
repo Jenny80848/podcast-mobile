@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, Image, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
-import { Video, ResizeMode } from 'expo-av';
+import { useVideoPlayer, VideoView } from 'expo-video';
+import { useAudioPlayer } from 'expo-audio';
 import { fetchEpisode, IMAGE_BASE_URL, Episode } from '@/constants/apiConfig';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -11,9 +12,28 @@ export default function EpisodeDetailScreen() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
+  // Initialize Video Player
+  const videoPlayer = useVideoPlayer('', (player) => {
+    player.loop = false;
+  });
+
+  // Initialize Audio Player
+  const audioPlayer = useAudioPlayer('');
+
   useEffect(() => {
     if (id) loadEpisode();
   }, [id]);
+
+  useEffect(() => {
+    if (episode) {
+      if (episode.video_url) {
+        videoPlayer.replace(getMediaUrl(episode.video_url));
+      }
+      if (episode.audio_url) {
+        audioPlayer.replace(getMediaUrl(episode.audio_url));
+      }
+    }
+  }, [episode]);
 
   const loadEpisode = async () => {
     try {
@@ -58,14 +78,10 @@ export default function EpisodeDetailScreen() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.mediaContainer}>
           {episode.video_url ? (
-            <Video
-              source={{ uri: getMediaUrl(episode.video_url) }}
-              rate={1.0}
-              volume={1.0}
-              isMuted={false}
-              resizeMode={ResizeMode.CONTAIN}
-              shouldPlay={false}
-              useNativeControls
+            <VideoView
+              player={videoPlayer}
+              allowsFullscreen
+              allowsPictureInPicture
               style={styles.video}
             />
           ) : (
@@ -92,11 +108,19 @@ export default function EpisodeDetailScreen() {
             {episode.audio_url && (
               <View style={styles.playerBox}>
                 <Text style={styles.playerLabel}>Audio Episode</Text>
-                <Video
-                  source={{ uri: getMediaUrl(episode.audio_url) }}
-                  useNativeControls
-                  style={styles.audioPlayer}
-                />
+                <TouchableOpacity 
+                   style={styles.playButton} 
+                   onPress={() => audioPlayer.playing ? audioPlayer.pause() : audioPlayer.play()}
+                >
+                  <Ionicons 
+                    name={audioPlayer.playing ? "pause-circle" : "play-circle"} 
+                    size={64} 
+                    color="#3b82f6" 
+                  />
+                </TouchableOpacity>
+                <View style={styles.progressBarContainer}>
+                   <View style={[styles.progressBar, { width: `${(audioPlayer.currentTime / audioPlayer.duration) * 100}%` }]} />
+                </View>
               </View>
             )}
           </View>
@@ -164,10 +188,6 @@ const styles = StyleSheet.create({
     width: '80%',
     height: '70%',
     borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.5,
-    shadowRadius: 20,
   },
   content: {
     padding: 24,
@@ -202,21 +222,31 @@ const styles = StyleSheet.create({
   },
   playerBox: {
     backgroundColor: 'rgba(59, 130, 246, 0.1)',
-    borderRadius: 20,
-    padding: 20,
+    borderRadius: 24,
+    padding: 24,
     borderWidth: 1,
     borderColor: 'rgba(59, 130, 246, 0.2)',
+    alignItems: 'center',
   },
   playerLabel: {
     color: '#3b82f6',
     fontSize: 14,
     fontWeight: 'bold',
-    marginBottom: 16,
-    textAlign: 'center',
+    marginBottom: 20,
   },
-  audioPlayer: {
-    height: 50,
+  playButton: {
+    marginBottom: 24,
+  },
+  progressBarContainer: {
     width: '100%',
+    height: 6,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  progressBar: {
+    height: '100%',
+    backgroundColor: '#3b82f6',
   },
   infoSection: {
     marginBottom: 32,

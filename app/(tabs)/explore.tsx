@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, RefreshControl } from 'react-native';
 import { fetchCategories, Category } from '@/constants/apiConfig';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function CategoriesScreen() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     loadCategories();
@@ -21,8 +22,14 @@ export default function CategoriesScreen() {
       console.error(error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    loadCategories();
+  }, []);
 
   const getIconForCategory = (name: string) => {
     const n = name.toLowerCase();
@@ -30,7 +37,7 @@ export default function CategoriesScreen() {
     if (n.includes('faith')) return 'shield-checkmark-outline';
     if (n.includes('kingdom')) return 'planet-outline';
     if (n.includes('worship')) return 'musical-notes-outline';
-    return 'microphone-outline';
+    return 'mic-outline';
   };
 
   const renderItem = ({ item, index }: { item: Category; index: number }) => {
@@ -75,6 +82,15 @@ export default function CategoriesScreen() {
           </View>
         )}
         contentContainerStyle={styles.list}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#3b82f6"
+            colors={['#3b82f6']}
+            backgroundColor="#0a0f1c"
+          />
+        }
       />
     </View>
   );
