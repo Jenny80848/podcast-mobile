@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndicator, RefreshControl } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -35,7 +35,7 @@ export default function HomeScreen() {
     }
   };
 
-  const onRefresh = React.useCallback(() => {
+  const onRefresh = useCallback(() => {
     setRefreshing(true);
     loadEpisodes();
   }, []);
@@ -117,7 +117,6 @@ export default function HomeScreen() {
             onRefresh={onRefresh}
             tintColor="#3b82f6"
             colors={['#3b82f6']}
-            backgroundColor="#0a0f1c"
           />
         }
       />

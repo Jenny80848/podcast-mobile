@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, RefreshControl } from 'react-native';
 import { fetchCategories, Category } from '@/constants/apiConfig';
 import { Ionicons } from '@expo/vector-icons';
@@ -26,7 +26,7 @@ export default function CategoriesScreen() {
     }
   };
 
-  const onRefresh = React.useCallback(() => {
+  const onRefresh = useCallback(() => {
     setRefreshing(true);
     loadCategories();
   }, []);
@@ -88,7 +88,6 @@ export default function CategoriesScreen() {
             onRefresh={onRefresh}
             tintColor="#3b82f6"
             colors={['#3b82f6']}
-            backgroundColor="#0a0f1c"
           />
         }
       />
