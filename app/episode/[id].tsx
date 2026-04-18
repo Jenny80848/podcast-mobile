@@ -1,16 +1,34 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, Image, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, Text, ScrollView, Image, StyleSheet, ActivityIndicator, TouchableOpacity, Dimensions } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { useAudioPlayer } from 'expo-audio';
 import { fetchEpisode, IMAGE_BASE_URL, Episode } from '@/constants/apiConfig';
 import { Ionicons } from '@expo/vector-icons';
+import YoutubePlayer from 'react-native-youtube-iframe';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function EpisodeDetailScreen() {
   const { id } = useLocalSearchParams();
   const [episode, setEpisode] = useState<Episode | null>(null);
   const [loading, setLoading] = useState(true);
+  const [playing, setPlaying] = useState(false);
   const router = useRouter();
+
+  // Helper to extract YouTube ID
+  const getYoutubeId = (url: string | undefined): string | null => {
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  };
+
+  const onStateChange = useCallback((state: string) => {
+    if (state === 'ended') {
+      setPlaying(false);
+    }
+  }, []);
 
   // Initialize Video Player
   const videoPlayer = useVideoPlayer('', (player) => {
@@ -26,7 +44,7 @@ export default function EpisodeDetailScreen() {
 
   useEffect(() => {
     if (episode) {
-      if (episode.video_url) {
+      if (episode.video_url && !getYoutubeId(episode.video_url)) {
         videoPlayer.replace(getMediaUrl(episode.video_url));
       }
       if (episode.audio_url) {
@@ -78,12 +96,23 @@ export default function EpisodeDetailScreen() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.mediaContainer}>
           {episode.video_url ? (
-            <VideoView
-              player={videoPlayer}
-              allowsFullscreen
-              allowsPictureInPicture
-              style={styles.video}
-            />
+            getYoutubeId(episode.video_url) ? (
+              <View style={styles.youtubeWrapper}>
+                <YoutubePlayer
+                  height={SCREEN_WIDTH * 0.5625} // 16:9 aspect ratio
+                  play={playing}
+                  videoId={getYoutubeId(episode.video_url)!}
+                  onChangeState={onStateChange}
+                />
+              </View>
+            ) : (
+              <VideoView
+                player={videoPlayer}
+                allowsFullscreen
+                allowsPictureInPicture
+                style={styles.video}
+              />
+            )
           ) : (
             <View style={styles.imageWrapper}>
               <Image 
@@ -278,5 +307,10 @@ const styles = StyleSheet.create({
     color: '#94a3b8',
     fontSize: 14,
     fontWeight: '500',
+  },
+  youtubeWrapper: {
+    width: '100%',
+    backgroundColor: '#000',
+    justifyContent: 'center',
   },
 });
